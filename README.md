@@ -8,7 +8,7 @@ I used library of 'tidyr','tidyverse' and 'data.table'. The required packages ca
 installed_pkgs <- row.names(installed.packages())
 pkgs <- c("tidyr", "tidyverse","data.table")
 for(p in pkgs){
-	if(!(p %in% install_pkgs)){
+	if(!(p %in% installed_pkgs)){
 		install.packages(p)
 	}
 }

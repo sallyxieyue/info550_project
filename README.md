@@ -27,4 +27,4 @@ To execute the analysis, from the project folder you can run
 Rscript -e "rmarkdown::render('HW4_YX.Rmd')"
 
 ```
-This will create a file called HW4_YX.html output in your directory that contains the results.
+This will create a file called 'INFO550 Homework 4.html' output in your directory that contains the results.

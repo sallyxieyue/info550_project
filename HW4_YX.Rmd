@@ -1,0 +1,78 @@
+---
+title: "INFO550 Homework 4"
+author: "Yue Xie"
+output: html_document
+---
+
+
+
+<!-- Load simulated birth records and NH4 AQ data -->
+```{r,load-data}
+library(tidyr)
+library(tidyverse)
+getwd()
+load("simulated_final.RData")
+load("NH4.Rdata")
+
+
+```
+
+
+<!-- 
+   clean the NH4 data variable names and apply data.table package
+   merge two data sets and calculate trimester averages 
+-->
+```{r, merge-data-clean}
+library(data.table)
+NH4$tract_date<-NH4$Data
+setDT(simulated_final)
+setDT(NH4)
+
+testi<-NH4[simulated_final, on=.(Tract==CENSUS, Data >= CONCEPTION, Data<=BIRTHDATE)]
+setnames(testi, "Data", "CONCEPTION")
+setnames(testi, "Data.1", "BIRTHDATE")
+
+testi[,`:=` (t1.avg = mean(NH4[tract_date >= CONCEPTION & tract_date < CONCEPTION + (7*11)], na.rm = TRUE),
+                  t2.avg = mean(NH4[tract_date >= CONCEPTION + (7*11) & tract_date < CONCEPTION + (7*24)], na.rm = TRUE),
+                  t3.avg = mean(NH4[tract_date >= CONCEPTION + (7*24) & tract_date <= BIRTHDATE], na.rm = TRUE),
+                  total.avg = mean(NH4)), 
+            by = ID_1]
+t1.annuali <- testi[, mean(t1.avg, na.rm = TRUE), by = "C_year"]
+t2.annuali<- testi[, mean(t2.avg, na.rm = TRUE), by = "C_year"]
+t3.annuali <- testi[, mean(t3.avg, na.rm = TRUE), by = "C_year"]
+total.annuali<- testi[, mean(total.avg, na.rm = TRUE), by = "C_year"]
+
+annual.combined <- list(t1.annuali, t2.annuali, t3.annuali, total.annuali) %>% 
+  reduce(left_join, by = "C_year")
+```
+
+
+<!-- 
+   Create a table 
+-->
+
+```{r,set-table}
+annual.combined$t1 <- annual.combined$V1.x
+annual.combined$t2 <- annual.combined$V1.y
+annual.combined$t3 <- annual.combined$V1.x.x
+annual.combined$total <- annual.combined$V1.y.y
+annual.combined <- select(annual.combined, -V1.x, -V1.y, -V1.x.x, -V1.y.y)
+annual.combined.melt <- melt(annual.combined)
+```
+
+<!-- 
+   create a graph  
+-->
+```{r,plots}
+library(ggplot2)
+ggplot(annual.combined.melt, 
+       aes(x = C_year, y = value, color = variable)) + 
+  geom_point() + 
+  geom_line(aes(group = variable)) + 
+  scale_y_continuous(breaks = round(seq(min(annual.combined.melt$value), max(annual.combined.melt$value), by = .1), 1)) + 
+  xlab("Conception Year") + 
+  ylab("CO") +
+  ggtitle("Annual Plot of Average NH4 Exposure in GA (2006-2014)") +
+  labs(color = "Trimester") + 
+  theme_bw() 
+```

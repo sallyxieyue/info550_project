@@ -6,7 +6,7 @@ I used library of 'tidyr','tidyverse' and 'data.table'. The required packages ca
 
 ```{r}
 installed_pkgs <- row.names(installed.packages())
-pkgs <- c("tidyr", "tidyverse","data.table")
+pkgs <- c("tidyverse","data.table","ggplot2")
 for(p in pkgs){
 	if(!(p %in% installed_pkgs)){
 		install.packages(p)

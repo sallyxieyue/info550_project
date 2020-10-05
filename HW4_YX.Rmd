@@ -8,8 +8,9 @@ output: html_document
 
 <!-- Load simulated birth records and NH4 AQ data -->
 ```{r,load-data}
-library(tidyr)
+library(ggplot2)
 library(tidyverse)
+library(data.table)
 getwd()
 load("simulated_final.RData")
 load("NH4.Rdata")
@@ -23,7 +24,7 @@ load("NH4.Rdata")
    merge two data sets and calculate trimester averages 
 -->
 ```{r, merge-data-clean}
-library(data.table)
+
 NH4$tract_date<-NH4$Data
 setDT(simulated_final)
 setDT(NH4)
@@ -64,7 +65,7 @@ annual.combined.melt <- melt(annual.combined)
    create a graph  
 -->
 ```{r,plots}
-library(ggplot2)
+
 ggplot(annual.combined.melt, 
        aes(x = C_year, y = value, color = variable)) + 
   geom_point() + 
